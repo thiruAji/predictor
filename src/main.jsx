@@ -396,4 +396,17 @@ function Results({result}) {
   );
 }
 
-createRoot(document.getElementById("root")).render(<App />);
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  document.body.innerHTML = `
+    <div style="font-family:Arial,sans-serif;display:grid;place-items:center;height:100vh;color:#111827;text-align:center;padding:24px;">
+      <div>
+        <h2 style="margin:0 0 12px;">Sequence Analyzer failed to load</h2>
+        <p style="margin:0;">The app mount element is missing. Check the page HTML and try again.</p>
+      </div>
+    </div>
+  `;
+} else {
+  createRoot(rootElement).render(<App />);
+}
