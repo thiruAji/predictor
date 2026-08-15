@@ -2,6 +2,22 @@ export const STORAGE_KEY = "sequence_analyzer_v3_data";
 export const ANALYZE_KEY = "sequence_analyzer_v3_analyze";
 export const THEME_KEY = "sequence_analyzer_theme";
 export const LEGACY_KEY = "sequence-analyzer-history-v2";
+export const CHAT_NAMES_KEY = "sequence_analyzer_chat_names";
+
+export const DEFAULT_CHAT_NAMES = {
+  data: {
+    "1": "WhatsApp 1",
+    "2": "WhatsApp 2",
+    "3": "WhatsApp 3",
+    "4": "WhatsApp 4"
+  },
+  analyze: {
+    "1": "Business 1",
+    "2": "Business 2",
+    "3": "Business 3",
+    "4": "Business 4"
+  }
+};
 
 export function getTodayString() {
   const now = new Date();
@@ -66,6 +82,32 @@ export function createEmptyAnalyzeStructure() {
     "3": [],
     "4": []
   };
+}
+
+export function loadChatNames() {
+  try {
+    const raw = localStorage.getItem(CHAT_NAMES_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        return {
+          data: { ...DEFAULT_CHAT_NAMES.data, ...(parsed.data || {}) },
+          analyze: { ...DEFAULT_CHAT_NAMES.analyze, ...(parsed.analyze || {}) }
+        };
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse stored chat names", e);
+  }
+  return DEFAULT_CHAT_NAMES;
+}
+
+export function saveChatNames(chatNames) {
+  try {
+    localStorage.setItem(CHAT_NAMES_KEY, JSON.stringify(chatNames));
+  } catch (e) {
+    console.error("Failed to save chat names to localStorage", e);
+  }
 }
 
 export function loadData() {
@@ -173,7 +215,6 @@ export function saveTheme(theme) {
 export function generateSampleData() {
   const result = {};
 
-  // Generate multi-date sample data for July & August 2026
   const dates = ["2026-07-01", "2026-07-15", "2026-07-31", "2026-08-01", "2026-08-15"];
   
   const samplesByDate = {
@@ -216,13 +257,14 @@ export function generateSampleData() {
   return result;
 }
 
-export function exportJSON(data, analyzeData) {
+export function exportJSON(data, analyzeData, chatNames) {
   const payload = {
     app: "Sequence Analyzer Chat",
     version: "3.0",
     exportedAt: new Date().toISOString(),
     dates: data || {},
-    analyze: analyzeData || {}
+    analyze: analyzeData || {},
+    chatNames: chatNames || DEFAULT_CHAT_NAMES
   };
   return JSON.stringify(payload, null, 2);
 }
@@ -235,8 +277,8 @@ export function importJSON(jsonStr) {
 
   let dates = parsed.dates;
   let analyze = parsed.analyze;
+  let chatNames = parsed.chatNames;
 
-  // Handle case where raw dates structure was exported directly
   if (!dates && typeof parsed === "object" && !Array.isArray(parsed)) {
     dates = parsed;
   }
@@ -245,7 +287,6 @@ export function importJSON(jsonStr) {
     throw new Error("Missing dates object in JSON payload.");
   }
 
-  // Validate dates structure
   const cleanDates = {};
   Object.keys(dates).forEach(dateKey => {
     const dayData = dates[dateKey];
@@ -268,8 +309,14 @@ export function importJSON(jsonStr) {
     });
   }
 
+  const cleanNames = {
+    data: { ...DEFAULT_CHAT_NAMES.data, ...(chatNames?.data || {}) },
+    analyze: { ...DEFAULT_CHAT_NAMES.analyze, ...(chatNames?.analyze || {}) }
+  };
+
   return {
     dates: cleanDates,
-    analyze: cleanAnalyze
+    analyze: cleanAnalyze,
+    chatNames: cleanNames
   };
 }

@@ -6,6 +6,9 @@ import {
   saveAnalyzeData,
   loadTheme,
   saveTheme,
+  loadChatNames,
+  saveChatNames,
+  DEFAULT_CHAT_NAMES,
   getTodayString,
   createEmptyDayStructure,
   isValidSequence,
@@ -21,6 +24,7 @@ export function AppProvider({ children }) {
   const [theme, setTheme] = useState(() => loadTheme());
   const [datesData, setDatesData] = useState(() => loadData());
   const [analyzeData, setAnalyzeData] = useState(() => loadAnalyzeData());
+  const [chatNames, setChatNames] = useState(() => loadChatNames());
   const [activeDate, setActiveDate] = useState(() => getTodayString());
   
   // Navigation & View state
@@ -49,6 +53,25 @@ export function AppProvider({ children }) {
 
   const toggleTheme = () => {
     setTheme(prev => (prev === "dark" ? "light" : "dark"));
+  };
+
+  // --- CUSTOM CHAT NAME HANDLER ---
+  const updateChatName = (type, chatNum, newName) => {
+    const trimmed = String(newName || "").trim();
+    if (!trimmed) return;
+
+    setChatNames(prev => {
+      const colKey = String(chatNum);
+      const nextNames = {
+        ...prev,
+        [type]: {
+          ...(prev[type] || {}),
+          [colKey]: trimmed
+        }
+      };
+      saveChatNames(nextNames);
+      return nextNames;
+    });
   };
 
   // --- DATA CHAT HANDLERS ---
@@ -185,7 +208,8 @@ export function AppProvider({ children }) {
     const pattern = analyzeData[colKey] || [];
     
     if (pattern.length === 0) {
-      alert(`Analyze Chat ${chatNum} is empty. Enter sequence messages first.`);
+      const roomName = chatNames?.analyze?.[colKey] || `Business ${chatNum}`;
+      alert(`${roomName} is empty. Enter sequence messages first.`);
       return;
     }
 
@@ -196,7 +220,7 @@ export function AppProvider({ children }) {
 
   // --- MANAGEMENT & DATA RESET ---
   const handleExportJSON = () => {
-    const jsonStr = exportJSON(datesData, analyzeData);
+    const jsonStr = exportJSON(datesData, analyzeData, chatNames);
     const blob = new Blob([jsonStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -211,6 +235,10 @@ export function AppProvider({ children }) {
       const imported = importJSON(jsonString);
       setDatesData(imported.dates);
       setAnalyzeData(imported.analyze);
+      if (imported.chatNames) {
+        setChatNames(imported.chatNames);
+        saveChatNames(imported.chatNames);
+      }
       saveData(imported.dates);
       saveAnalyzeData(imported.analyze);
       alert("Data successfully imported!");
@@ -227,8 +255,10 @@ export function AppProvider({ children }) {
       const emptyAnalyze = { "1": [], "2": [], "3": [], "4": [] };
       setDatesData(emptyDates);
       setAnalyzeData(emptyAnalyze);
+      setChatNames(DEFAULT_CHAT_NAMES);
       saveData(emptyDates);
       saveAnalyzeData(emptyAnalyze);
+      saveChatNames(DEFAULT_CHAT_NAMES);
       setActiveDate(getTodayString());
       setCurrentView("home");
     }
@@ -246,6 +276,8 @@ export function AppProvider({ children }) {
     toggleTheme,
     datesData,
     analyzeData,
+    chatNames,
+    updateChatName,
     activeDate,
     setActiveDate,
     currentView,

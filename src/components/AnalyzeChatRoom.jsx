@@ -6,6 +6,8 @@ export function AnalyzeChatRoom() {
   const {
     activeAnalyzeChat,
     analyzeData,
+    chatNames,
+    updateChatName,
     addMessageToAnalyzeChat,
     editMessageInAnalyzeChat,
     deleteMessageFromAnalyzeChat,
@@ -16,9 +18,13 @@ export function AnalyzeChatRoom() {
   const [inputVal, setInputVal] = useState("");
   const [editingIndex, setEditingIndex] = useState(null);
   const [editVal, setEditVal] = useState("");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleInputVal, setTitleInputVal] = useState("");
   const messagesEndRef = useRef(null);
 
-  const patternList = analyzeData[String(activeAnalyzeChat)] || [];
+  const colKey = String(activeAnalyzeChat);
+  const customRoomName = chatNames?.analyze?.[colKey] || `Business ${activeAnalyzeChat}`;
+  const patternList = analyzeData[colKey] || [];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,12 +53,12 @@ export function AnalyzeChatRoom() {
     }
   };
 
-  const startEdit = (index, currentCode) => {
+  const startEditMsg = (index, currentCode) => {
     setEditingIndex(index);
     setEditVal(currentCode);
   };
 
-  const saveEdit = (index) => {
+  const saveEditMsg = (index) => {
     if (editVal.length !== 3 || !isValidSequence(editVal)) {
       alert("Must be exactly 3 digits between 1–6.");
       return;
@@ -62,12 +68,44 @@ export function AnalyzeChatRoom() {
     setEditVal("");
   };
 
+  const saveTitle = () => {
+    if (titleInputVal.trim()) {
+      updateChatName("analyze", activeAnalyzeChat, titleInputVal);
+    }
+    setIsEditingTitle(false);
+  };
+
   return (
     <div className="chat-room-container">
-      {/* TOP BAR WITH ANALYZE CHAT X ACTION BUTTON */}
+      {/* TOP BAR WITH CUSTOM ROOM NAME & ANALYZE ACTION BUTTON */}
       <div className="chat-room-topbar analyze-topbar">
         <div className="chat-room-topbar-info">
-          <h3>Analyze Chat {activeAnalyzeChat}</h3>
+          {isEditingTitle ? (
+            <div className="chat-title-edit-row">
+              <input
+                type="text"
+                value={titleInputVal}
+                onChange={e => setTitleInputVal(e.target.value)}
+                className="chat-name-input"
+                autoFocus
+              />
+              <button className="btn-small primary" onClick={saveTitle}>Save</button>
+            </div>
+          ) : (
+            <div className="chat-title-display-row">
+              <h3>{customRoomName}</h3>
+              <button
+                className="btn-icon-rename"
+                onClick={() => {
+                  setTitleInputVal(customRoomName);
+                  setIsEditingTitle(true);
+                }}
+                title="Rename Room"
+              >
+                ✏️
+              </button>
+            </div>
+          )}
           <span>{patternList.length} sequence query row{patternList.length === 1 ? "" : "s"}</span>
         </div>
 
@@ -81,14 +119,14 @@ export function AnalyzeChatRoom() {
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <span>Analyze Chat {activeAnalyzeChat}</span>
+            <span>Analyze {customRoomName}</span>
           </button>
 
           {patternList.length > 0 && (
             <button
               className="btn-danger-outline"
               onClick={() => {
-                if (confirm(`Clear all messages in Analyze Chat ${activeAnalyzeChat}?`)) {
+                if (confirm(`Clear all messages in ${customRoomName}?`)) {
                   clearAnalyzeChat(activeAnalyzeChat);
                 }
               }}
@@ -104,8 +142,8 @@ export function AnalyzeChatRoom() {
         {patternList.length === 0 ? (
           <div className="empty-chat-placeholder">
             <div className="empty-chat-icon">🔎</div>
-            <h4>Analyze Chat {activeAnalyzeChat} is empty</h4>
-            <p>Send 3-digit messages (e.g. <code>126</code>, <code>331</code>, <code>115</code>) to form a pattern sequence, then tap <b>Analyze Chat {activeAnalyzeChat}</b> to search.</p>
+            <h4>{customRoomName} is empty</h4>
+            <p>Send 3-digit messages (e.g. <code>126</code>, <code>331</code>, <code>115</code>) to form a pattern sequence, then tap <b>Analyze {customRoomName}</b> to search.</p>
           </div>
         ) : (
           patternList.map((code, index) => {
@@ -129,7 +167,7 @@ export function AnalyzeChatRoom() {
                       autoFocus
                     />
                     <div className="chat-edit-actions">
-                      <button className="btn-small primary" onClick={() => saveEdit(index)}>Save</button>
+                      <button className="btn-small primary" onClick={() => saveEditMsg(index)}>Save</button>
                       <button className="btn-small secondary" onClick={() => setEditingIndex(null)}>Cancel</button>
                     </div>
                   </div>
@@ -147,7 +185,7 @@ export function AnalyzeChatRoom() {
                       <div className="chat-bubble-actions">
                         <button
                           className="chat-bubble-btn"
-                          onClick={() => startEdit(index, code)}
+                          onClick={() => startEditMsg(index, code)}
                           title="Edit message"
                         >
                           ✏️

@@ -9,16 +9,19 @@ export function DataSection() {
     setActiveDate,
     setActiveDataChat,
     setCurrentView,
-    clearDateData
+    clearDateData,
+    chatNames,
+    updateChatName
   } = useApp();
 
   const [dateSearchTerm, setDateSearchTerm] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [customDateInput, setCustomDateInput] = useState(getTodayString());
+  const [editingChatNum, setEditingChatNum] = useState(null);
+  const [nameInputVal, setNameInputVal] = useState("");
 
-  const allDates = Object.keys(datesData || {}).sort((a, b) => b.localeCompare(a)); // Descending order (recent first)
+  const allDates = Object.keys(datesData || {}).sort((a, b) => b.localeCompare(a));
 
-  // Filter dates by search query
   const filteredDates = allDates.filter(dateStr => {
     const formatted = formatDateDisplay(dateStr).toLowerCase();
     const raw = dateStr.toLowerCase();
@@ -39,6 +42,20 @@ export function DataSection() {
       setActiveDate(customDateInput);
       setShowDatePicker(false);
     }
+  };
+
+  const startRenameChat = (e, chatNum, currentName) => {
+    e.stopPropagation();
+    setEditingChatNum(chatNum);
+    setNameInputVal(currentName);
+  };
+
+  const saveRenameChat = (chatNum) => {
+    if (nameInputVal.trim()) {
+      updateChatName("data", chatNum, nameInputVal);
+    }
+    setEditingChatNum(null);
+    setNameInputVal("");
   };
 
   return (
@@ -122,9 +139,9 @@ export function DataSection() {
         )}
       </div>
 
-      {/* CHAT ROOM CARDS (Chat 1, Chat 2, Chat 3, Chat 4) */}
+      {/* WHATSAPP CHAT ROOM CARDS */}
       <div className="chat-rooms-header">
-        <h3 className="section-subtitle">DATA Chat Rooms</h3>
+        <h3 className="section-subtitle">WhatsApp Chat Rooms</h3>
         <button
           className="btn-danger-link"
           onClick={() => {
@@ -139,22 +156,48 @@ export function DataSection() {
 
       <div className="chat-rooms-grid">
         {[1, 2, 3, 4].map(chatNum => {
-          const messageList = activeDayData[String(chatNum)] || [];
+          const colKey = String(chatNum);
+          const customName = chatNames?.data?.[colKey] || `WhatsApp ${chatNum}`;
+          const messageList = activeDayData[colKey] || [];
           const count = messageList.length;
           const lastMessage = count > 0 ? messageList[count - 1] : "No records yet";
+          const isEditingName = editingChatNum === chatNum;
 
           return (
-            <button
+            <div
               key={chatNum}
               className="chat-room-card"
               onClick={() => handleSelectChat(chatNum)}
             >
               <div className="chat-room-avatar">
-                <span>C{chatNum}</span>
+                <span>W{chatNum}</span>
               </div>
+
               <div className="chat-room-info">
                 <div className="chat-room-title-row">
-                  <h4 className="chat-room-name">Chat {chatNum}</h4>
+                  {isEditingName ? (
+                    <div className="chat-name-edit-inline" onClick={e => e.stopPropagation()}>
+                      <input
+                        type="text"
+                        value={nameInputVal}
+                        onChange={e => setNameInputVal(e.target.value)}
+                        className="chat-name-input"
+                        autoFocus
+                      />
+                      <button className="btn-small primary" onClick={() => saveRenameChat(chatNum)}>Save</button>
+                    </div>
+                  ) : (
+                    <div className="chat-name-display-row">
+                      <h4 className="chat-room-name">{customName}</h4>
+                      <button
+                        className="btn-icon-rename"
+                        onClick={e => startRenameChat(e, chatNum, customName)}
+                        title="Rename Chat Room"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  )}
                   <span className="chat-room-badge">{count} msg</span>
                 </div>
                 <p className="chat-room-preview">
@@ -162,7 +205,7 @@ export function DataSection() {
                 </p>
               </div>
               <div className="chat-room-chevron">›</div>
-            </button>
+            </div>
           );
         })}
       </div>

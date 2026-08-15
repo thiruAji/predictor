@@ -2,7 +2,7 @@ import React from "react";
 import { useApp } from "../context/AppContext.jsx";
 
 export function ResultScreen() {
-  const { analysisResult, setCurrentView } = useApp();
+  const { analysisResult, chatNames, setCurrentView } = useApp();
 
   if (!analysisResult) {
     return (
@@ -10,7 +10,7 @@ export function ResultScreen() {
         <div className="empty-chat-placeholder">
           <h3>No analysis result available</h3>
           <button className="btn-small primary" onClick={() => setCurrentView("analyze")}>
-            Go to Analyze Rooms
+            Go to WhatsApp Business
           </button>
         </div>
       </div>
@@ -25,11 +25,13 @@ export function ResultScreen() {
     totalMatches
   } = analysisResult;
 
+  const analyzeRoomName = chatNames?.analyze?.[String(analyzeChatNum)] || `Business ${analyzeChatNum}`;
+
   return (
     <div className="results-container">
       {/* HEADER SUMMARY */}
       <div className="results-header-card">
-        <span className="results-tag">Result for Analyze Chat {analyzeChatNum}</span>
+        <span className="results-tag">Result for {analyzeRoomName}</span>
         <h2 className="results-title">Pattern Match Analysis</h2>
         
         <div className="pattern-sequence-strip">
@@ -93,56 +95,60 @@ export function ResultScreen() {
 
         {matches.length === 0 ? (
           <div className="empty-chat-placeholder">
-            <p>No exact sequence pattern found across all saved DATA dates.</p>
+            <p>No exact sequence pattern found across all saved WhatsApp dates.</p>
           </div>
         ) : (
           <div className="matches-list">
-            {matches.map((m, idx) => (
-              <div key={m.id || idx} className="match-detail-card">
-                <div className="match-card-header">
-                  <span className="match-number">Match #{idx + 1}</span>
-                  <span className="match-chat-tag">DATA Chat {m.dataChat}</span>
-                </div>
+            {matches.map((m, idx) => {
+              const dataRoomName = chatNames?.data?.[String(m.dataChat)] || `WhatsApp ${m.dataChat}`;
 
-                <div className="match-card-body">
-                  <div className="match-field-row">
-                    <span className="field-label">Date:</span>
-                    <span className="field-value highlight">{m.formattedDate}</span>
+              return (
+                <div key={m.id || idx} className="match-detail-card">
+                  <div className="match-card-header">
+                    <span className="match-number">Match #{idx + 1}</span>
+                    <span className="match-chat-tag">{dataRoomName}</span>
                   </div>
 
-                  <div className="match-field-row">
-                    <span className="field-label">DATA Chat:</span>
-                    <span className="field-value">Chat {m.dataChat}</span>
-                  </div>
-
-                  <div className="match-field-row">
-                    <span className="field-label">Rows:</span>
-                    <span className="field-value">
-                      Rows {m.startRow}–{m.endRow}
-                      {!m.sameDate && ` (ended ${m.endFormattedDate})`}
-                    </span>
-                  </div>
-
-                  <div className="match-field-divider" />
-
-                  {m.historicalNext ? (
-                    <div className="match-next-box">
-                      <div className="next-box-left">
-                        <span className="next-label">Historical Next:</span>
-                        <span className="next-value-code">{m.historicalNext}</span>
-                      </div>
-                      <div className="next-box-right">
-                        <span className="next-total-pill">Total: {m.digitTotal}</span>
-                      </div>
+                  <div className="match-card-body">
+                    <div className="match-field-row">
+                      <span className="field-label">Date:</span>
+                      <span className="field-value highlight">{m.formattedDate}</span>
                     </div>
-                  ) : (
-                    <div className="match-no-next">
-                      No following row exists after this match in historical data.
+
+                    <div className="match-field-row">
+                      <span className="field-label">WhatsApp Room:</span>
+                      <span className="field-value">{dataRoomName}</span>
                     </div>
-                  )}
+
+                    <div className="match-field-row">
+                      <span className="field-label">Rows:</span>
+                      <span className="field-value">
+                        Rows {m.startRow}–{m.endRow}
+                        {!m.sameDate && ` (ended ${m.endFormattedDate})`}
+                      </span>
+                    </div>
+
+                    <div className="match-field-divider" />
+
+                    {m.historicalNext ? (
+                      <div className="match-next-box">
+                        <div className="next-box-left">
+                          <span className="next-label">Historical Next:</span>
+                          <span className="next-value-code">{m.historicalNext}</span>
+                        </div>
+                        <div className="next-box-right">
+                          <span className="next-total-pill">Total: {m.digitTotal}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="match-no-next">
+                        No following row exists after this match in historical data.
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

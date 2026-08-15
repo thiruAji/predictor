@@ -7,6 +7,8 @@ export function DataChatRoom() {
     activeDate,
     activeDataChat,
     datesData,
+    chatNames,
+    updateChatName,
     addMessageToDataChat,
     editMessageInDataChat,
     deleteMessageFromDataChat,
@@ -16,12 +18,15 @@ export function DataChatRoom() {
   const [inputVal, setInputVal] = useState("");
   const [editingIndex, setEditingIndex] = useState(null);
   const [editVal, setEditVal] = useState("");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleInputVal, setTitleInputVal] = useState("");
   const messagesEndRef = useRef(null);
 
+  const colKey = String(activeDataChat);
+  const customRoomName = chatNames?.data?.[colKey] || `WhatsApp ${activeDataChat}`;
   const dayData = datesData[activeDate] || {};
-  const chatMessages = dayData[String(activeDataChat)] || [];
+  const chatMessages = dayData[colKey] || [];
 
-  // Auto-scroll to bottom on new message or room open
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -31,7 +36,6 @@ export function DataChatRoom() {
   }, [chatMessages.length]);
 
   const handleInputChange = (e) => {
-    // Only allow digits 1-6 up to 3 chars
     const cleaned = e.target.value.replace(/[^1-6]/g, "").slice(0, 3);
     setInputVal(cleaned);
   };
@@ -50,12 +54,12 @@ export function DataChatRoom() {
     }
   };
 
-  const startEdit = (index, currentCode) => {
+  const startEditMsg = (index, currentCode) => {
     setEditingIndex(index);
     setEditVal(currentCode);
   };
 
-  const saveEdit = (index) => {
+  const saveEditMsg = (index) => {
     if (editVal.length !== 3 || !isValidSequence(editVal)) {
       alert("Must be exactly 3 digits between 1–6.");
       return;
@@ -65,18 +69,50 @@ export function DataChatRoom() {
     setEditVal("");
   };
 
+  const saveTitle = () => {
+    if (titleInputVal.trim()) {
+      updateChatName("data", activeDataChat, titleInputVal);
+    }
+    setIsEditingTitle(false);
+  };
+
   return (
     <div className="chat-room-container">
       {/* ROOM HEADER BAR */}
       <div className="chat-room-topbar">
         <div className="chat-room-topbar-info">
-          <h3>DATA Chat {activeDataChat}</h3>
+          {isEditingTitle ? (
+            <div className="chat-title-edit-row">
+              <input
+                type="text"
+                value={titleInputVal}
+                onChange={e => setTitleInputVal(e.target.value)}
+                className="chat-name-input"
+                autoFocus
+              />
+              <button className="btn-small primary" onClick={saveTitle}>Save</button>
+            </div>
+          ) : (
+            <div className="chat-title-display-row">
+              <h3>{customRoomName}</h3>
+              <button
+                className="btn-icon-rename"
+                onClick={() => {
+                  setTitleInputVal(customRoomName);
+                  setIsEditingTitle(true);
+                }}
+                title="Rename Room"
+              >
+                ✏️
+              </button>
+            </div>
+          )}
           <span>{formatDateDisplay(activeDate)} • {chatMessages.length} records</span>
         </div>
         <button
           className="btn-danger-outline"
           onClick={() => {
-            if (confirm(`Clear all messages in DATA Chat ${activeDataChat} for ${formatDateDisplay(activeDate)}?`)) {
+            if (confirm(`Clear all messages in ${customRoomName} for ${formatDateDisplay(activeDate)}?`)) {
               clearDataChat(activeDate, activeDataChat);
             }
           }}
@@ -90,7 +126,7 @@ export function DataChatRoom() {
         {chatMessages.length === 0 ? (
           <div className="empty-chat-placeholder">
             <div className="empty-chat-icon">💬</div>
-            <h4>No records in DATA Chat {activeDataChat}</h4>
+            <h4>No records in {customRoomName}</h4>
             <p>Type exactly 3 digits (1–6 only, e.g. <code>245</code>) below to add rows for {formatDateDisplay(activeDate)}.</p>
           </div>
         ) : (
@@ -115,7 +151,7 @@ export function DataChatRoom() {
                       autoFocus
                     />
                     <div className="chat-edit-actions">
-                      <button className="btn-small primary" onClick={() => saveEdit(index)}>Save</button>
+                      <button className="btn-small primary" onClick={() => saveEditMsg(index)}>Save</button>
                       <button className="btn-small secondary" onClick={() => setEditingIndex(null)}>Cancel</button>
                     </div>
                   </div>
@@ -133,7 +169,7 @@ export function DataChatRoom() {
                       <div className="chat-bubble-actions">
                         <button
                           className="chat-bubble-btn"
-                          onClick={() => startEdit(index, code)}
+                          onClick={() => startEditMsg(index, code)}
                           title="Edit Message"
                         >
                           ✏️
