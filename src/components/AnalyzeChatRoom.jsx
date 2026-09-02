@@ -10,6 +10,7 @@ export function AnalyzeChatRoom() {
     chatNames,
     updateChatName,
     addMessageToAnalyzeChat,
+    addMultipleMessagesToAnalyzeChat,
     editMessageInAnalyzeChat,
     deleteMessageFromAnalyzeChat,
     clearAnalyzeChat,
@@ -39,16 +40,10 @@ export function AnalyzeChatRoom() {
   const handleVoiceTriplets = useCallback((triplets, remainder) => {
     if (!triplets || triplets.length === 0) return;
 
-    let addedCount = 0;
-    triplets.forEach(triplet => {
-      if (isValidSequence(triplet)) {
-        addMessageToAnalyzeChat(activeAnalyzeChat, triplet);
-        addedCount++;
-      }
-    });
-
-    if (addedCount > 0) {
-      setVoiceToast(`Voice added ${addedCount} query row${addedCount === 1 ? "" : "s"}: ${triplets.join(", ")}`);
+    const validTriplets = triplets.filter(isValidSequence);
+    if (validTriplets.length > 0) {
+      addMultipleMessagesToAnalyzeChat(activeAnalyzeChat, validTriplets);
+      setVoiceToast(`Voice added ${validTriplets.length} query row${validTriplets.length === 1 ? "" : "s"}: ${validTriplets.join(", ")}`);
       setTimeout(() => setVoiceToast(""), 3500);
     }
 
@@ -57,7 +52,7 @@ export function AnalyzeChatRoom() {
     } else {
       setInputVal("");
     }
-  }, [activeAnalyzeChat, addMessageToAnalyzeChat]);
+  }, [activeAnalyzeChat, addMultipleMessagesToAnalyzeChat]);
 
   const {
     isSupported: voiceSupported,

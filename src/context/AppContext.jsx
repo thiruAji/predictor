@@ -91,6 +91,23 @@ export function AppProvider({ children }) {
     return true;
   };
 
+  const addMultipleMessagesToDataChat = (dateStr, chatNum, codeList) => {
+    const validCodes = (codeList || []).filter(isValidSequence);
+    if (validCodes.length === 0) return false;
+
+    setDatesData(prev => {
+      const day = prev[dateStr] ? { ...prev[dateStr] } : createEmptyDayStructure();
+      const colKey = String(chatNum);
+      const updatedChat = [...(day[colKey] || []), ...validCodes];
+      const nextDay = { ...day, [colKey]: updatedChat };
+      const nextData = { ...prev, [dateStr]: nextDay };
+      saveData(nextData);
+      return nextData;
+    });
+
+    return true;
+  };
+
   const editMessageInDataChat = (dateStr, chatNum, index, newCode) => {
     if (!isValidSequence(newCode)) return false;
 
@@ -153,6 +170,21 @@ export function AppProvider({ children }) {
     setAnalyzeData(prev => {
       const colKey = String(chatNum);
       const updated = [...(prev[colKey] || []), code];
+      const nextData = { ...prev, [colKey]: updated };
+      saveAnalyzeData(nextData);
+      return nextData;
+    });
+
+    return true;
+  };
+
+  const addMultipleMessagesToAnalyzeChat = (chatNum, codeList) => {
+    const validCodes = (codeList || []).filter(isValidSequence);
+    if (validCodes.length === 0) return false;
+
+    setAnalyzeData(prev => {
+      const colKey = String(chatNum);
+      const updated = [...(prev[colKey] || []), ...validCodes];
       const nextData = { ...prev, [colKey]: updated };
       saveAnalyzeData(nextData);
       return nextData;
@@ -291,11 +323,13 @@ export function AppProvider({ children }) {
     isManagementOpen,
     setIsManagementOpen,
     addMessageToDataChat,
+    addMultipleMessagesToDataChat,
     editMessageInDataChat,
     deleteMessageFromDataChat,
     clearDataChat,
     clearDateData,
     addMessageToAnalyzeChat,
+    addMultipleMessagesToAnalyzeChat,
     editMessageInAnalyzeChat,
     deleteMessageFromAnalyzeChat,
     clearAnalyzeChat,

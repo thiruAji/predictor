@@ -11,6 +11,7 @@ export function DataChatRoom() {
     chatNames,
     updateChatName,
     addMessageToDataChat,
+    addMultipleMessagesToDataChat,
     editMessageInDataChat,
     deleteMessageFromDataChat,
     clearDataChat
@@ -37,20 +38,14 @@ export function DataChatRoom() {
     scrollToBottom();
   }, [chatMessages.length]);
 
-  // Voice recognition triplets callback
+  // Voice recognition triplets callback (handles 3, 6, 9, 12+ digits seamlessly)
   const handleVoiceTriplets = useCallback((triplets, remainder) => {
     if (!triplets || triplets.length === 0) return;
 
-    let addedCount = 0;
-    triplets.forEach(triplet => {
-      if (isValidSequence(triplet)) {
-        addMessageToDataChat(activeDate, activeDataChat, triplet);
-        addedCount++;
-      }
-    });
-
-    if (addedCount > 0) {
-      setVoiceToast(`Voice added ${addedCount} row${addedCount === 1 ? "" : "s"}: ${triplets.join(", ")}`);
+    const validTriplets = triplets.filter(isValidSequence);
+    if (validTriplets.length > 0) {
+      addMultipleMessagesToDataChat(activeDate, activeDataChat, validTriplets);
+      setVoiceToast(`Voice added ${validTriplets.length} row${validTriplets.length === 1 ? "" : "s"}: ${validTriplets.join(", ")}`);
       setTimeout(() => setVoiceToast(""), 3500);
     }
 
@@ -59,7 +54,7 @@ export function DataChatRoom() {
     } else {
       setInputVal("");
     }
-  }, [activeDate, activeDataChat, addMessageToDataChat]);
+  }, [activeDate, activeDataChat, addMultipleMessagesToDataChat]);
 
   const {
     isSupported: voiceSupported,
@@ -160,7 +155,7 @@ export function DataChatRoom() {
           <div className="empty-chat-placeholder">
             <div className="empty-chat-icon">💬</div>
             <h4>No records in {customRoomName}</h4>
-            <p>Type 3 digits or tap the 🎙️ mic to speak 3, 6, 9, or 12 digits (e.g. <code>245 334 551</code>).</p>
+            <p>Type 3 digits or tap 🎙️ to speak 3, 6, 9, or 12 digits (e.g. <code>245 334 551</code>).</p>
           </div>
         ) : (
           chatMessages.map((code, index) => {
