@@ -16,7 +16,6 @@ export function parseSpokenDigits(text) {
   
   let digits = "";
   tokens.forEach(token => {
-    // Check if token contains explicit digits
     const matchedDigits = token.match(/[1-6]/g);
     if (matchedDigits) {
       digits += matchedDigits.join("");
@@ -49,7 +48,9 @@ export function useVoiceInput(onVoiceTriplets) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [voiceError, setVoiceError] = useState(null);
+  
   const recognitionRef = useRef(null);
+  const processedDigitsRef = useRef("");
 
   const isSupported = typeof window !== "undefined" &&
     ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
@@ -67,22 +68,33 @@ export function useVoiceInput(onVoiceTriplets) {
     recognition.onstart = () => {
       setIsListening(true);
       setVoiceError(null);
+      processedDigitsRef.current = "";
     };
 
     recognition.onresult = (event) => {
-      let currentTranscript = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        currentTranscript += event.results[i][0].transcript + " ";
+      let fullTranscript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        fullTranscript += event.results[i][0].transcript + " ";
       }
 
-      setTranscript(currentTranscript);
-      const parsedDigits = parseSpokenDigits(currentTranscript);
+      setTranscript(fullTranscript);
 
-      if (parsedDigits.length >= 3) {
-        const { triplets, remainder } = chunkDigitsToTriplets(parsedDigits);
-        if (triplets.length > 0 && onVoiceTriplets) {
-          onVoiceTriplets(triplets, remainder);
-          setTranscript("");
+      // Parse all digits spoken so far
+      const totalDigits = parseSpokenDigits(fullTranscript);
+
+      // Determine unconsumed digits that haven't been saved yet
+      const unconsumedDigits = totalDigits.slice(processedDigitsRef.current.length);
+
+      if (unconsumedDigits.length >= 3) {
+        const { triplets, remainder } = chunkDigitsToTriplets(unconsumedDigits);
+        if (triplets.length > 0) {
+          // Track how many digits we are consuming right now
+          const consumedCount = triplets.length * 3;
+          processedDigitsRef.current += unconsumedDigits.slice(0, consumedCount);
+          
+          if (onVoiceTriplets) {
+            onVoiceTriplets(triplets, remainder);
+          }
         }
       }
     };
@@ -97,6 +109,7 @@ export function useVoiceInput(onVoiceTriplets) {
 
     recognition.onend = () => {
       setIsListening(false);
+      processedDigitsRef.current = "";
     };
 
     recognitionRef.current = recognition;
@@ -120,6 +133,7 @@ export function useVoiceInput(onVoiceTriplets) {
 
     setTranscript("");
     setVoiceError(null);
+    processedDigitsRef.current = "";
 
     try {
       recognitionRef.current?.start();
@@ -127,7 +141,10 @@ export function useVoiceInput(onVoiceTriplets) {
       console.warn("Error starting recognition", e);
       try {
         recognitionRef.current?.stop();
-        setTimeout(() => recognitionRef.current?.start(), 150);
+        setTimeout(() => {
+          processedDigitsRef.current = "";
+          recognitionRef.current?.start();
+        }, 150);
       } catch (err) {
         setVoiceError("Could not start microphone.");
       }
@@ -141,6 +158,7 @@ export function useVoiceInput(onVoiceTriplets) {
       // ignore stop errors
     }
     setIsListening(false);
+    processedDigitsRef.current = "";
   }, []);
 
   const toggleListening = useCallback(() => {
