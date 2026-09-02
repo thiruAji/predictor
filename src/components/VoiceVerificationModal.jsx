@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { isValidSequence } from "../utils/storage.js";
 
 export function VoiceVerificationModal({
@@ -10,6 +10,8 @@ export function VoiceVerificationModal({
   onRerecord
 }) {
   const [editableList, setEditableList] = useState([]);
+  const [editingRowIndex, setEditingRowIndex] = useState(null);
+  const inputRefs = useRef([]);
 
   useEffect(() => {
     if (recordedTriplets && recordedTriplets.length > 0) {
@@ -17,6 +19,7 @@ export function VoiceVerificationModal({
     } else {
       setEditableList([]);
     }
+    setEditingRowIndex(null);
   }, [recordedTriplets, isOpen]);
 
   if (!isOpen) return null;
@@ -32,14 +35,31 @@ export function VoiceVerificationModal({
 
   const removeRow = (index) => {
     setEditableList(prev => prev.filter((_, i) => i !== index));
+    if (editingRowIndex === index) setEditingRowIndex(null);
   };
 
   const addEmptyRow = () => {
     setEditableList(prev => [...prev, ""]);
+    setEditingRowIndex(editableList.length);
   };
 
-  const handleSave = (e) => {
-    e.preventDefault();
+  const saveSingleRow = (index) => {
+    const code = editableList[index];
+    if (!isValidSequence(code)) {
+      alert("Must be exactly 3 digits between 1–6.");
+      return;
+    }
+    if (onConfirmSave) {
+      onConfirmSave([code]);
+    }
+    removeRow(index);
+    if (editableList.length <= 1) {
+      onClose();
+    }
+  };
+
+  const saveAllRows = (e) => {
+    if (e) e.preventDefault();
     const validTriplets = editableList.filter(isValidSequence);
 
     if (validTriplets.length === 0) {
@@ -60,16 +80,16 @@ export function VoiceVerificationModal({
           <div className="verification-header-title">
             <span className="mic-badge-icon">🎙️</span>
             <div>
-              <h3 className="modal-title">Verify Spoken Records</h3>
-              <span className="verification-subtitle">Target: <b>{roomName}</b></span>
+              <h3 className="modal-title">Verify Spoken Numbers</h3>
+              <span className="verification-subtitle">Saving to: <b>{roomName}</b></span>
             </div>
           </div>
           <button className="modal-close-btn" onClick={onClose} aria-label="Close">✕</button>
         </div>
 
-        <form onSubmit={handleSave} className="modal-body verification-modal-body">
+        <form onSubmit={saveAllRows} className="modal-body verification-modal-body">
           <p className="tab-desc">
-            Review recorded numbers below. Edit any digit if misheard before saving into <b>{roomName}</b>.
+            Check recorded numbers below. Use <b>✏️ Edit</b> to tweak digits or tap <b>✅ OK</b> to save into <b>{roomName}</b>.
           </p>
 
           <div className="verification-triplets-list">
@@ -78,28 +98,57 @@ export function VoiceVerificationModal({
             ) : (
               editableList.map((code, index) => {
                 const isValid = isValidSequence(code);
+                const isEditing = editingRowIndex === index;
+
                 return (
                   <div key={index} className="verification-row-item">
                     <span className="verification-row-index">Row #{index + 1}</span>
 
                     <input
+                      ref={el => inputRefs.current[index] = el}
                       type="text"
                       inputMode="numeric"
                       maxLength="3"
                       value={code}
                       onChange={e => handleDigitChange(index, e.target.value)}
-                      className={`triplet-edit-input ${isValid ? "valid" : "invalid"}`}
+                      className={`triplet-edit-input ${isValid ? "valid" : "invalid"} ${isEditing ? "active-editing" : ""}`}
                       placeholder="1–6"
                     />
 
-                    <button
-                      type="button"
-                      className="chat-bubble-btn danger"
-                      onClick={() => removeRow(index)}
-                      title="Remove Row"
-                    >
-                      🗑️
-                    </button>
+                    <div className="verification-row-actions">
+                      <button
+                        type="button"
+                        className={`action-symbol-btn edit-symbol ${isEditing ? "active" : ""}`}
+                        onClick={() => {
+                          setEditingRowIndex(isEditing ? null : index);
+                          if (!isEditing) {
+                            setTimeout(() => inputRefs.current[index]?.focus(), 50);
+                          }
+                        }}
+                        title="Edit digits"
+                      >
+                        ✏️
+                      </button>
+
+                      <button
+                        type="button"
+                        className="action-symbol-btn ok-symbol"
+                        onClick={() => saveSingleRow(index)}
+                        disabled={!isValid}
+                        title="OK - Save this row inside chat"
+                      >
+                        ✅
+                      </button>
+
+                      <button
+                        type="button"
+                        className="action-symbol-btn delete-symbol"
+                        onClick={() => removeRow(index)}
+                        title="Delete row"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                 );
               })
@@ -122,7 +171,7 @@ export function VoiceVerificationModal({
               className="btn-modal-primary"
               disabled={editableList.filter(isValidSequence).length === 0}
             >
-              ✅ Save to {roomName}
+              ✅ OK & Save All to {roomName}
             </button>
 
             <button
