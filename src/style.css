@@ -743,6 +743,86 @@ html, body {
   gap: 6px;
 }
 
+/* VOICE INPUT STYLES */
+.chat-mic-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.chat-mic-btn:hover {
+  color: var(--accent-emerald);
+  border-color: var(--accent-emerald);
+}
+
+.chat-mic-btn.listening {
+  background: var(--accent-rose);
+  color: #ffffff;
+  border-color: var(--accent-rose);
+  animation: micPulse 1.2s infinite ease-in-out;
+  box-shadow: 0 0 12px rgba(241, 92, 109, 0.6);
+}
+
+@keyframes micPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(241, 92, 109, 0.6); }
+  50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(241, 92, 109, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(241, 92, 109, 0); }
+}
+
+.voice-listening-strip {
+  background: rgba(241, 92, 109, 0.15);
+  border: 1px solid var(--accent-rose);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px 4px 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+.recording-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-rose);
+  animation: micPulse 1s infinite ease-in-out;
+}
+
+.voice-toast-banner {
+  background: var(--accent-emerald);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 0 16px 4px 16px;
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.2s ease;
+  text-align: center;
+}
+
+.voice-error-strip {
+  background: rgba(241, 92, 109, 0.2);
+  color: var(--accent-rose);
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  margin: 0 16px 4px 16px;
+}
+
 /* STICKY INPUT BAR (WHATSAPP STYLE) */
 .chat-input-bar {
   position: sticky;

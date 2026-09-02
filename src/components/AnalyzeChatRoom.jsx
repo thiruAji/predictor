@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useApp } from "../context/AppContext.jsx";
 import { getDigitTotal, isValidSequence } from "../utils/storage.js";
+import { useVoiceInput } from "../hooks/useVoiceInput.js";
 
 export function AnalyzeChatRoom() {
   const {
@@ -20,6 +21,7 @@ export function AnalyzeChatRoom() {
   const [editVal, setEditVal] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleInputVal, setTitleInputVal] = useState("");
+  const [voiceToast, setVoiceToast] = useState("");
   const messagesEndRef = useRef(null);
 
   const colKey = String(activeAnalyzeChat);
@@ -33,6 +35,36 @@ export function AnalyzeChatRoom() {
   useEffect(() => {
     scrollToBottom();
   }, [patternList.length]);
+
+  const handleVoiceTriplets = useCallback((triplets, remainder) => {
+    if (!triplets || triplets.length === 0) return;
+
+    let addedCount = 0;
+    triplets.forEach(triplet => {
+      if (isValidSequence(triplet)) {
+        addMessageToAnalyzeChat(activeAnalyzeChat, triplet);
+        addedCount++;
+      }
+    });
+
+    if (addedCount > 0) {
+      setVoiceToast(`Voice added ${addedCount} query row${addedCount === 1 ? "" : "s"}: ${triplets.join(", ")}`);
+      setTimeout(() => setVoiceToast(""), 3500);
+    }
+
+    if (remainder) {
+      setInputVal(remainder);
+    } else {
+      setInputVal("");
+    }
+  }, [activeAnalyzeChat, addMessageToAnalyzeChat]);
+
+  const {
+    isSupported: voiceSupported,
+    isListening,
+    toggleListening,
+    voiceError
+  } = useVoiceInput(handleVoiceTriplets);
 
   const handleInputChange = (e) => {
     const cleaned = e.target.value.replace(/[^1-6]/g, "").slice(0, 3);
@@ -143,7 +175,7 @@ export function AnalyzeChatRoom() {
           <div className="empty-chat-placeholder">
             <div className="empty-chat-icon">🔎</div>
             <h4>{customRoomName} is empty</h4>
-            <p>Send 3-digit messages (e.g. <code>126</code>, <code>331</code>, <code>115</code>) to form a pattern sequence, then tap <b>Analyze {customRoomName}</b> to search.</p>
+            <p>Send 3-digit messages (or tap 🎙️ to speak 3, 6, 9, or 12 digits), then tap <b>Analyze {customRoomName}</b> to search.</p>
           </div>
         ) : (
           patternList.map((code, index) => {
@@ -208,14 +240,50 @@ export function AnalyzeChatRoom() {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* VOICE TOAST NOTIFICATION BANNER */}
+      {voiceToast && (
+        <div className="voice-toast-banner">
+          <span>{voiceToast}</span>
+        </div>
+      )}
+
+      {/* LISTENING STATUS STRIP */}
+      {isListening && (
+        <div className="voice-listening-strip">
+          <span className="recording-dot" />
+          <span>Listening... Speak 3, 6, 9, or 12 digits (1–6)</span>
+        </div>
+      )}
+
+      {voiceError && (
+        <div className="voice-error-strip">
+          <span>Mic error: {voiceError}</span>
+        </div>
+      )}
+
       {/* STICKY INPUT BAR */}
       <form className="chat-input-bar" onSubmit={handleSend}>
+        {voiceSupported && (
+          <button
+            type="button"
+            className={`chat-mic-btn ${isListening ? "listening" : ""}`}
+            onClick={toggleListening}
+            title={isListening ? "Stop Listening" : "Speak digits (e.g. 126331115)"}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+            </svg>
+          </button>
+        )}
+
         <div className="chat-input-wrapper">
           <input
             type="text"
             inputMode="numeric"
             maxLength="3"
-            placeholder="Add 3-digit query (1–6)"
+            placeholder={isListening ? "Listening digits..." : "Add 3-digit query (1–6)"}
             value={inputVal}
             onChange={handleInputChange}
             className="chat-text-input"
