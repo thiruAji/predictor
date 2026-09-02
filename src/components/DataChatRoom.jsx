@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useApp } from "../context/AppContext.jsx";
 import { formatDateDisplay, getDigitTotal, isValidSequence } from "../utils/storage.js";
 import { useVoiceInput } from "../hooks/useVoiceInput.js";
+import { VoiceVerificationModal } from "./VoiceVerificationModal.jsx";
 
 export function DataChatRoom() {
   const {
@@ -23,6 +24,11 @@ export function DataChatRoom() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleInputVal, setTitleInputVal] = useState("");
   const [voiceToast, setVoiceToast] = useState("");
+  
+  // Voice Verification Modal state
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [pendingTriplets, setPendingTriplets] = useState([]);
+
   const messagesEndRef = useRef(null);
 
   const colKey = String(activeDataChat);
@@ -38,30 +44,37 @@ export function DataChatRoom() {
     scrollToBottom();
   }, [chatMessages.length]);
 
-  // Voice recognition triplets callback (handles 3, 6, 9, 12+ digits seamlessly)
+  // Voice recognition callback -> opens VoiceVerificationModal for inspection & editing
   const handleVoiceTriplets = useCallback((triplets, remainder) => {
     if (!triplets || triplets.length === 0) return;
 
-    const validTriplets = triplets.filter(isValidSequence);
-    if (validTriplets.length > 0) {
-      addMultipleMessagesToDataChat(activeDate, activeDataChat, validTriplets);
-      setVoiceToast(`Voice added ${validTriplets.length} row${validTriplets.length === 1 ? "" : "s"}: ${validTriplets.join(", ")}`);
-      setTimeout(() => setVoiceToast(""), 3500);
-    }
+    setPendingTriplets(triplets);
+    setIsVerifyModalOpen(true);
 
     if (remainder) {
       setInputVal(remainder);
     } else {
       setInputVal("");
     }
-  }, [activeDate, activeDataChat, addMultipleMessagesToDataChat]);
+  }, []);
 
   const {
     isSupported: voiceSupported,
     isListening,
+    startListening,
     toggleListening,
     voiceError
   } = useVoiceInput(handleVoiceTriplets);
+
+  // Called when user clicks "Confirm & Save" in VoiceVerificationModal
+  const handleConfirmSaveVoice = (verifiedTriplets) => {
+    if (!verifiedTriplets || verifiedTriplets.length === 0) return;
+
+    addMultipleMessagesToDataChat(activeDate, activeDataChat, verifiedTriplets);
+    setVoiceToast(`Saved ${verifiedTriplets.length} verified row${verifiedTriplets.length === 1 ? "" : "s"}: ${verifiedTriplets.join(", ")}`);
+    setTimeout(() => setVoiceToast(""), 3500);
+    setIsVerifyModalOpen(false);
+  };
 
   const handleInputChange = (e) => {
     const cleaned = e.target.value.replace(/[^1-6]/g, "").slice(0, 3);
@@ -287,6 +300,19 @@ export function DataChatRoom() {
           </svg>
         </button>
       </form>
+
+      {/* VOICE RECORDING VERIFICATION MODAL */}
+      <VoiceVerificationModal
+        isOpen={isVerifyModalOpen}
+        onClose={() => setIsVerifyModalOpen(false)}
+        roomName={customRoomName}
+        recordedTriplets={pendingTriplets}
+        onConfirmSave={handleConfirmSaveVoice}
+        onRerecord={() => {
+          setIsVerifyModalOpen(false);
+          startListening();
+        }}
+      />
     </div>
   );
 }
