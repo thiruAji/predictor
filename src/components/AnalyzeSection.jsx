@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext.jsx";
+import { analyzeSequencePattern } from "../utils/analysis.js";
 
 export function AnalyzeSection() {
   const {
     analyzeData,
+    datesData,
     setActiveAnalyzeChat,
     setCurrentView,
     runAnalysis,
@@ -38,7 +40,7 @@ export function AnalyzeSection() {
     <div className="section-container">
       <div className="section-header-box">
         <h2 className="section-title">WhatsApp Business Rooms</h2>
-        <p className="section-desc">Each business room builds an independent pattern to search across all saved WhatsApp data.</p>
+        <p className="section-desc">Real-time live pattern predictions are calculated automatically across all saved WhatsApp data.</p>
       </div>
 
       <div className="analyze-rooms-grid">
@@ -48,6 +50,17 @@ export function AnalyzeSection() {
           const patternList = analyzeData[colKey] || [];
           const count = patternList.length;
           const isEditingName = editingChatNum === chatNum;
+
+          // Compute real-time instant prediction for card badge
+          let topPredictionCode = null;
+          let matchCount = 0;
+          if (count > 0) {
+            const res = analyzeSequencePattern(chatNum, patternList, datesData);
+            matchCount = res?.matches?.length || 0;
+            if (res?.predictionCandidates?.length > 0) {
+              topPredictionCode = res.predictionCandidates[0].code;
+            }
+          }
 
           return (
             <div key={chatNum} className="analyze-room-card">
@@ -79,7 +92,13 @@ export function AnalyzeSection() {
                       </button>
                     </div>
                   )}
-                  <span className="analyze-room-badge">{count} query message{count === 1 ? "" : "s"}</span>
+                  
+                  <div className="analyze-card-badges-row">
+                    <span className="analyze-room-badge">{count} query message{count === 1 ? "" : "s"}</span>
+                    {topPredictionCode && (
+                      <span className="instant-next-badge">⚡ Next: <b>{topPredictionCode}</b></span>
+                    )}
+                  </div>
                 </div>
                 <div className="chat-room-chevron">›</div>
               </div>
@@ -109,7 +128,7 @@ export function AnalyzeSection() {
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
-                  <span>Analyze {customName}</span>
+                  <span>Full Details</span>
                 </button>
 
                 {count > 0 && (

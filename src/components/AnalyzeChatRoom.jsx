@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useApp } from "../context/AppContext.jsx";
 import { getDigitTotal, isValidSequence } from "../utils/storage.js";
+import { analyzeSequencePattern } from "../utils/analysis.js";
 import { useVoiceInput } from "../hooks/useVoiceInput.js";
 import { VoiceVerificationModal } from "./VoiceVerificationModal.jsx";
 
@@ -8,6 +9,7 @@ export function AnalyzeChatRoom() {
   const {
     activeAnalyzeChat,
     analyzeData,
+    datesData,
     chatNames,
     updateChatName,
     addMessageToAnalyzeChat,
@@ -34,6 +36,14 @@ export function AnalyzeChatRoom() {
   const colKey = String(activeAnalyzeChat);
   const customRoomName = chatNames?.analyze?.[colKey] || `Business ${activeAnalyzeChat}`;
   const patternList = analyzeData[colKey] || [];
+
+  // Real-time zero-click instant live prediction computation
+  const liveAnalysis = useMemo(() => {
+    if (!patternList || patternList.length === 0) return null;
+    return analyzeSequencePattern(activeAnalyzeChat, patternList, datesData);
+  }, [activeAnalyzeChat, patternList, datesData]);
+
+  const topPrediction = liveAnalysis?.predictionCandidates?.[0];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -158,7 +168,7 @@ export function AnalyzeChatRoom() {
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            <span>Analyze {customRoomName}</span>
+            <span>Full Details</span>
           </button>
 
           {patternList.length > 0 && (
@@ -176,13 +186,53 @@ export function AnalyzeChatRoom() {
         </div>
       </div>
 
+      {/* REAL-TIME INSTANT LIVE PREDICTION BANNER */}
+      {liveAnalysis && (
+        <div className="instant-prediction-card">
+          <div className="instant-prediction-header">
+            <div className="instant-header-left">
+              <span className="instant-badge-icon">⚡</span>
+              <div>
+                <span className="instant-tag">Instant Live Prediction</span>
+                <span className="instant-subtitle">Auto-scanned from historical data</span>
+              </div>
+            </div>
+            <span className="instant-count-pill">{liveAnalysis.matches.length} Match{liveAnalysis.matches.length === 1 ? "" : "es"}</span>
+          </div>
+
+          {topPrediction ? (
+            <div className="instant-prediction-body">
+              <div className="instant-predicted-code">
+                <span className="code-label">Top Predicted Next Number:</span>
+                <div className="code-pills-row">
+                  {topPrediction.code.split("").map((digit, i) => (
+                    <span key={i} className="digit-pill live-pill">{digit}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="instant-stat-details">
+                <span>Matched <b>{topPrediction.count} time{topPrediction.count === 1 ? "" : "s"}</b> in history (Digit Sum: {topPrediction.total})</span>
+              </div>
+            </div>
+          ) : (
+            <div className="instant-no-match">
+              {liveAnalysis.matches.length > 0 ? (
+                <span>Matched {liveAnalysis.matches.length} location(s), but no historical next number was recorded after it yet.</span>
+              ) : (
+                <span>No historical match found for this sequence pattern yet.</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* MESSAGES DISPLAY AREA */}
       <div className="chat-messages-scroll">
         {patternList.length === 0 ? (
           <div className="empty-chat-placeholder">
             <div className="empty-chat-icon">🔎</div>
             <h4>{customRoomName} is empty</h4>
-            <p>Send 3-digit messages (or tap 🎙️ to speak 3, 6, 9, or 12 digits), then tap <b>Analyze {customRoomName}</b> to search.</p>
+            <p>Send 3-digit messages (or tap 🎙️ to speak 3, 6, 9, or 12 digits). Instant prediction will automatically appear!</p>
           </div>
         ) : (
           patternList.map((code, index) => {

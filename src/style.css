@@ -478,6 +478,128 @@ html, body {
   100% { transform: translateX(0); }
 }
 
+/* INSTANT LIVE PREDICTION BANNER STYLES */
+.instant-prediction-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent-emerald);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin: 12px 16px 4px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 14px rgba(0, 168, 132, 0.18);
+  animation: fadeIn 0.2s ease;
+}
+
+.instant-prediction-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.instant-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.instant-badge-icon {
+  font-size: 1.2rem;
+  color: var(--accent-emerald);
+  animation: pulseGlow 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.instant-tag {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.instant-subtitle {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.instant-count-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(0, 168, 132, 0.15);
+  color: var(--accent-emerald);
+}
+
+.instant-prediction-body {
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.instant-predicted-code {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.code-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.code-pills-row {
+  display: flex;
+  gap: 4px;
+}
+
+.digit-pill.live-pill {
+  background: var(--accent-emerald);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 168, 132, 0.4);
+}
+
+.instant-stat-details {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.instant-no-match {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 4px 0;
+}
+
+.analyze-card-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.instant-next-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(0, 168, 132, 0.15);
+  color: var(--accent-emerald);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
 .home-info-box {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
