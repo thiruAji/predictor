@@ -21,7 +21,7 @@ export function HomeScreen() {
   const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
   const [homeToast, setHomeToast] = useState("");
 
-  // Swipe gesture tracking state for center line
+  // Full Page & Center Line Swipe gesture tracking state
   const [swipeOffset, setSwipeOffset] = useState(0);
   const touchStartXRef = useRef(null);
 
@@ -89,7 +89,7 @@ export function HomeScreen() {
     }
   };
 
-  // CENTER LINE SWIPE GESTURE HANDLERS (SWIPE LEFT TO RIGHT)
+  // FULL PAGE SWIPE GESTURE HANDLERS (SWIPE LEFT-TO-RIGHT / RIGHT-TO-LEFT)
   const handleTouchStart = (e) => {
     const touch = e.touches ? e.touches[0] : e;
     touchStartXRef.current = touch.clientX;
@@ -106,13 +106,13 @@ export function HomeScreen() {
 
   const handleTouchEnd = () => {
     if (swipeOffset > 60) {
-      // Swiped Left to Right -> Open WhatsApp Business Page!
+      // Swiped Left to Right -> Switch between WhatsApp & WhatsApp Business page!
       setHomeToast("↔ Opening WhatsApp Business...");
       setTimeout(() => {
         setCurrentView("analyze");
         setSwipeOffset(0);
         setHomeToast("");
-      }, 200);
+      }, 180);
     } else {
       setSwipeOffset(0);
     }
@@ -141,14 +141,18 @@ export function HomeScreen() {
   };
 
   return (
-    <main className="home-container">
-      {/* HEADER TITLE BANNER */}
+    <main
+      className="home-container minimal-home"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* MINIMAL HEADER */}
       <div className="home-welcome">
         <div className="home-title-row">
           <h2 className="home-welcome-title">Predictor Engine</h2>
-          <div className="home-badge-pill">{totalDates} Dates • {totalDataMessages} Messages</div>
+          <div className="home-badge-pill">{totalDates} Dates • {totalDataMessages} Records</div>
         </div>
-        <p className="home-welcome-sub">Tap button to open • Hold button to voice record</p>
       </div>
 
       {/* HOME RECORDING STATUS STRIP */}
@@ -156,7 +160,7 @@ export function HomeScreen() {
         <div className="voice-listening-strip home-listening-banner">
           <span className="recording-dot" />
           <div className="home-listening-info">
-            <b>🎙️ Voice Recording for {activeVoiceTarget.name}...</b>
+            <b>🎙️ Recording for {activeVoiceTarget.name}...</b>
             <span>Speak 3, 6, 9, or 12 digits (1–6)</span>
           </div>
           <button className="btn-small secondary" onClick={stopListening}>Stop</button>
@@ -184,14 +188,11 @@ export function HomeScreen() {
               <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.66 4.05 1.79 5.65L2 22l4.6-1.85a9.86 9.86 0 0 0 5.44 1.62c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 17.84c-1.7 0-3.32-.47-4.73-1.34l-.34-.21-3.52 1.41 1.44-3.44-.23-.36c-.95-1.5-1.46-3.24-1.46-5.02 0-4.46 3.63-8.09 8.09-8.09s8.09 3.63 8.09 8.09-3.63 8.96-8.09 8.96z"/>
             </svg>
           </div>
-          <div>
-            <h3 className="section-card-title">WhatsApp Data Rooms</h3>
-            <span className="section-card-sub">4 Date-Grouped Data Chats</span>
-          </div>
+          <h3 className="section-card-title">WhatsApp Data</h3>
           <span className="section-card-chevron">→</span>
         </div>
 
-        {/* 4 HORIZONTAL ROUND COLORFUL BUTTONS */}
+        {/* 4 TOP HORIZONTAL ROUND COLORFUL BUTTONS */}
         <div className="round-buttons-row">
           {[1, 2, 3, 4].map(chatNum => {
             const name = chatNames?.data?.[String(chatNum)] || `WhatsApp ${chatNum}`;
@@ -220,15 +221,9 @@ export function HomeScreen() {
         </div>
       </section>
 
-      {/* CENTER INTERACTIVE SWIPE GESTURE LINE */}
+      {/* CENTER INTERACTIVE SWIPE LINE */}
       <div
         className="center-swipe-container"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleTouchStart}
-        onMouseMove={handleTouchMove}
-        onMouseUp={handleTouchEnd}
         onClick={() => setCurrentView("analyze")}
         title="Swipe line left-to-right to open WhatsApp Business"
       >
@@ -256,14 +251,11 @@ export function HomeScreen() {
               <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.66 4.05 1.79 5.65L2 22l4.6-1.85a9.86 9.86 0 0 0 5.44 1.62c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 17.84c-1.7 0-3.32-.47-4.73-1.34l-.34-.21-3.52 1.41 1.44-3.44-.23-.36c-.95-1.5-1.46-3.24-1.46-5.02 0-4.46 3.63-8.09 8.09-8.09s8.09 3.63 8.09 8.09-3.63 8.96-8.09 8.96zm1.9-6.91c.64 0 1.15.51 1.15 1.15s-.51 1.15-1.15 1.15h-2.5v1.5h2.5c.64 0 1.15.51 1.15 1.15s-.51 1.15-1.15 1.15h-3.8V9.5h3.8c.64 0 1.15.51 1.15 1.15s-.51 1.15-1.15 1.15h-2.5v1.13h2.5z"/>
             </svg>
           </div>
-          <div>
-            <h3 className="section-card-title">WhatsApp Business Analyzer</h3>
-            <span className="section-card-sub">4 Pattern Search Rooms</span>
-          </div>
+          <h3 className="section-card-title">WhatsApp Business</h3>
           <span className="section-card-chevron">→</span>
         </div>
 
-        {/* 4 HORIZONTAL ROUND COLORFUL BUTTONS */}
+        {/* 4 BOTTOM HORIZONTAL ROUND COLORFUL BUTTONS */}
         <div className="round-buttons-row">
           {[1, 2, 3, 4].map(chatNum => {
             const name = chatNames?.analyze?.[String(chatNum)] || `Business ${chatNum}`;
@@ -291,23 +283,6 @@ export function HomeScreen() {
           })}
         </div>
       </section>
-
-      {/* QUICK INSTRUCTIONS INFO BOX */}
-      <div className="home-info-box">
-        <div className="home-info-header">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="16" x2="12" y2="12" />
-            <line x1="12" y1="8" x2="12.01" y2="8" />
-          </svg>
-          <b>How to use the Home Page</b>
-        </div>
-        <p>
-          • <b>Tap</b> any round button 1, 2, 3, 4 to open that chat room.<br />
-          • <b>Hold / Long-press</b> any round button to record voice directly. Edit (✏️) and save (✅ OK) directly to 1st row!<br />
-          • <b>Swipe</b> the center line left-to-right to open WhatsApp Business!
-        </p>
-      </div>
 
       {/* VOICE RECORDING VERIFICATION MODAL ON HOME SCREEN */}
       <VoiceVerificationModal
