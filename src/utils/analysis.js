@@ -1,11 +1,11 @@
 import { formatDateDisplay, getDigitTotal } from "./storage.js";
 
 export function analyzeSequencePattern(analyzeChatNum, patternSequence, datesData) {
-  if (!patternSequence || !patternSequence.length) {
+  if (!patternSequence || patternSequence.length < 2) {
     return {
-      error: "Sequence pattern is empty.",
+      error: "Minimum 2 pattern sequence rows required for prediction.",
       analyzeChatNum,
-      pattern: [],
+      pattern: patternSequence || [],
       matches: [],
       predictionCandidates: []
     };

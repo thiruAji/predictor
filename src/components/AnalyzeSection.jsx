@@ -40,7 +40,7 @@ export function AnalyzeSection() {
     <div className="section-container">
       <div className="section-header-box">
         <h2 className="section-title">WhatsApp Business Rooms</h2>
-        <p className="section-desc">Real-time live pattern predictions are calculated automatically across all saved WhatsApp data.</p>
+        <p className="section-desc">Real-time live pattern predictions require at least 2 sequence rows.</p>
       </div>
 
       <div className="analyze-rooms-grid">
@@ -51,10 +51,10 @@ export function AnalyzeSection() {
           const count = patternList.length;
           const isEditingName = editingChatNum === chatNum;
 
-          // Compute real-time instant prediction for card badge
+          // Compute real-time instant prediction for card badge (requires at least 2 rows)
           let topPredictionCode = null;
           let matchCount = 0;
-          if (count > 0) {
+          if (count >= 2) {
             const res = analyzeSequencePattern(chatNum, patternList, datesData);
             matchCount = res?.matches?.length || 0;
             if (res?.predictionCandidates?.length > 0) {
@@ -122,7 +122,7 @@ export function AnalyzeSection() {
                 <button
                   className="btn-action-primary"
                   onClick={() => runAnalysis(chatNum)}
-                  disabled={count === 0}
+                  disabled={count < 2}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>

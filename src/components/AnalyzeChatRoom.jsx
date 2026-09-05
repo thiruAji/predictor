@@ -37,9 +37,9 @@ export function AnalyzeChatRoom() {
   const customRoomName = chatNames?.analyze?.[colKey] || `Business ${activeAnalyzeChat}`;
   const patternList = analyzeData[colKey] || [];
 
-  // Real-time zero-click instant live prediction computation
+  // Real-time zero-click instant live prediction computation (requires AT LEAST 2 rows)
   const liveAnalysis = useMemo(() => {
-    if (!patternList || patternList.length === 0) return null;
+    if (!patternList || patternList.length < 2) return null;
     return analyzeSequencePattern(activeAnalyzeChat, patternList, datesData);
   }, [activeAnalyzeChat, patternList, datesData]);
 
@@ -162,7 +162,7 @@ export function AnalyzeChatRoom() {
           <button
             className="btn-analyze-execute"
             onClick={() => runAnalysis(activeAnalyzeChat)}
-            disabled={patternList.length === 0}
+            disabled={patternList.length < 2}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
@@ -186,7 +186,15 @@ export function AnalyzeChatRoom() {
         </div>
       </div>
 
-      {/* REAL-TIME INSTANT LIVE PREDICTION BANNER */}
+      {/* SINGLE ROW GUIDANCE CARD */}
+      {patternList.length === 1 && (
+        <div className="single-row-guidance-card">
+          <span className="guidance-icon">💡</span>
+          <span>Add a 2nd sequence row (e.g. <code>334</code>) to predict the 3rd historical number.</span>
+        </div>
+      )}
+
+      {/* REAL-TIME INSTANT LIVE PREDICTION BANNER (TRIGGERED ONLY WHEN 2+ ROWS EXIST) */}
       {liveAnalysis && (
         <div className="instant-prediction-card">
           <div className="instant-prediction-header">
@@ -194,7 +202,7 @@ export function AnalyzeChatRoom() {
               <span className="instant-badge-icon">⚡</span>
               <div>
                 <span className="instant-tag">Instant Live Prediction</span>
-                <span className="instant-subtitle">Auto-scanned from historical data</span>
+                <span className="instant-subtitle">Auto-scanned from historical sequence ({patternList.slice(0, 3).join(" ➔ ")})</span>
               </div>
             </div>
             <span className="instant-count-pill">{liveAnalysis.matches.length} Match{liveAnalysis.matches.length === 1 ? "" : "es"}</span>
@@ -219,7 +227,7 @@ export function AnalyzeChatRoom() {
               {liveAnalysis.matches.length > 0 ? (
                 <span>Matched {liveAnalysis.matches.length} location(s), but no historical next number was recorded after it yet.</span>
               ) : (
-                <span>No historical match found for this sequence pattern yet.</span>
+                <span>No historical match found for sequence pattern ({patternList.slice(0, 3).join(" ➔ ")}) yet.</span>
               )}
             </div>
           )}
@@ -232,7 +240,7 @@ export function AnalyzeChatRoom() {
           <div className="empty-chat-placeholder">
             <div className="empty-chat-icon">🔎</div>
             <h4>{customRoomName} is empty</h4>
-            <p>Send 3-digit messages (or tap 🎙️ to speak 3, 6, 9, or 12 digits). Instant prediction will automatically appear!</p>
+            <p>Send at least 2 sequence rows (e.g. <code>556</code> and <code>334</code>). Instant prediction will automatically appear!</p>
           </div>
         ) : (
           patternList.map((code, index) => {
@@ -325,7 +333,7 @@ export function AnalyzeChatRoom() {
             type="button"
             className={`chat-mic-btn ${isListening ? "listening" : ""}`}
             onClick={toggleListening}
-            title={isListening ? "Stop Listening" : "Speak digits (e.g. 126331115)"}
+            title={isListening ? "Stop Listening" : "Speak digits (e.g. 556334)"}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
