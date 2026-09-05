@@ -2001,3 +2001,188 @@ html, body {
   font-size: 2.5rem;
   margin-bottom: 8px;
 }
+
+/* FULL LOCATION SEQUENCE CONTEXT FLOW STYLES */
+.match-sequence-flow-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 4px 0;
+}
+
+.flow-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.sequence-flow-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px;
+}
+
+.flow-arrow {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.flow-node-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  min-width: 70px;
+}
+
+.flow-node-card .node-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.flow-node-card .node-code {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.flow-node-card .node-tag-pill {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 230, 170, 0.25);
+  color: #00e6aa;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* NODE BADGE COLOR VARIANTS */
+.flow-badge-before {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+}
+.flow-badge-before .node-code {
+  color: var(--text-secondary);
+}
+
+.flow-badge-matched {
+  background: rgba(33, 150, 243, 0.12);
+  border: 1px solid rgba(33, 150, 243, 0.4);
+  color: #64b5f6;
+}
+.flow-badge-matched .node-label {
+  color: #90caf9;
+}
+.flow-badge-matched .node-code {
+  color: #2196f3;
+}
+
+.flow-badge-predicted {
+  background: rgba(0, 200, 150, 0.18);
+  border: 1px solid rgba(0, 230, 170, 0.6);
+  box-shadow: 0 0 10px rgba(0, 230, 170, 0.2);
+}
+.flow-badge-predicted .node-label {
+  color: #80e6cc;
+  font-weight: 600;
+}
+.flow-badge-predicted .node-code {
+  color: #00e6aa;
+  font-size: 1.25rem;
+}
+
+.flow-badge-after {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.flow-badge-after .node-code {
+  color: var(--text-muted);
+}
+
+/* INSTANT CARD CONTEXT PREVIEW */
+.instant-context-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+
+.instant-context-title {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.instant-context-flow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.flow-mini-arrow {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.instant-flow-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.instant-flow-pill .pill-type-tag {
+  font-size: 0.58rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.instant-flow-pill .pill-code {
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.instant-flow-pill.before {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+}
+
+.instant-flow-pill.matched {
+  background: rgba(33, 150, 243, 0.15);
+  border: 1px solid rgba(33, 150, 243, 0.3);
+  color: #64b5f6;
+}
+
+.instant-flow-pill.predicted {
+  background: rgba(0, 230, 170, 0.2);
+  border: 1px solid rgba(0, 230, 170, 0.5);
+  color: #00e6aa;
+}
+

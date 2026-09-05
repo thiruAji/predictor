@@ -121,7 +121,7 @@ export function ResultScreen() {
                     </div>
 
                     <div className="match-field-row">
-                      <span className="field-label">Rows:</span>
+                      <span className="field-label">Matched Rows:</span>
                       <span className="field-value">
                         Rows {m.startRow}–{m.endRow}
                         {!m.sameDate && ` (ended ${m.endFormattedDate})`}
@@ -130,10 +130,55 @@ export function ResultScreen() {
 
                     <div className="match-field-divider" />
 
+                    {/* FULL SEQUENCE CONTEXT FLOW (BEFORE ➔ MATCHED INPUT ➔ PREDICTED RESULT) */}
+                    <div className="match-sequence-flow-container">
+                      <span className="flow-title">Full Location Context (Before ➔ Input Pattern ➔ Predicted Result)</span>
+                      <div className="sequence-flow-strip">
+                        {(m.fullContext || []).map((item, idx2) => {
+                          const isBefore = item.type === "before";
+                          const isMatched = item.type === "matched";
+                          const isPredicted = item.type === "predicted";
+                          const isAfter = item.type === "after";
+
+                          let badgeClass = "flow-badge-default";
+                          let labelText = `Row ${item.rowIndex}`;
+
+                          if (isBefore) {
+                            badgeClass = "flow-badge-before";
+                            labelText = `Row ${item.rowIndex} (Before)`;
+                          } else if (isMatched) {
+                            badgeClass = "flow-badge-matched";
+                            labelText = `Row ${item.rowIndex} (Input Match)`;
+                          } else if (isPredicted) {
+                            badgeClass = "flow-badge-predicted";
+                            labelText = `Row ${item.rowIndex} (Predicted ⚡)`;
+                          } else if (isAfter) {
+                            badgeClass = "flow-badge-after";
+                            labelText = `Row ${item.rowIndex} (After)`;
+                          }
+
+                          return (
+                            <React.Fragment key={idx2}>
+                              {idx2 > 0 && <span className="flow-arrow">➔</span>}
+                              <div className={`flow-node-card ${badgeClass}`}>
+                                <span className="node-label">{labelText}</span>
+                                <span className="node-code">{item.code}</span>
+                                {isPredicted && (
+                                  <span className="node-tag-pill">Prediction Result</span>
+                                )}
+                              </div>
+                            </React.Fragment>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="match-field-divider" />
+
                     {m.historicalNext ? (
                       <div className="match-next-box">
                         <div className="next-box-left">
-                          <span className="next-label">Historical Next:</span>
+                          <span className="next-label">Predicted After Number:</span>
                           <span className="next-value-code">{m.historicalNext}</span>
                         </div>
                         <div className="next-box-right">

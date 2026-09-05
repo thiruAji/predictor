@@ -218,6 +218,32 @@ export function AnalyzeChatRoom() {
                   ))}
                 </div>
               </div>
+
+              {/* LIVE CONTEXT SEQUENCE FLOW PREVIEW */}
+              {liveAnalysis.matches[0]?.fullContext && (
+                <div className="instant-context-preview">
+                  <span className="instant-context-title">Match Location Sequence Context:</span>
+                  <div className="instant-context-flow">
+                    {liveAnalysis.matches[0].fullContext.map((item, idx) => {
+                      const isPredicted = item.type === "predicted";
+                      const isMatched = item.type === "matched";
+                      const isBefore = item.type === "before";
+                      return (
+                        <React.Fragment key={idx}>
+                          {idx > 0 && <span className="flow-mini-arrow">➔</span>}
+                          <span className={`instant-flow-pill ${isPredicted ? "predicted" : isMatched ? "matched" : "before"}`}>
+                            <span className="pill-type-tag">
+                              {isBefore ? "Before" : isMatched ? "Input" : "Result ⚡"}
+                            </span>
+                            <span className="pill-code">{item.code}</span>
+                          </span>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="instant-stat-details">
                 <span>Matched <b>{topPrediction.count} time{topPrediction.count === 1 ? "" : "s"}</b> in history (Digit Sum: {topPrediction.total})</span>
               </div>

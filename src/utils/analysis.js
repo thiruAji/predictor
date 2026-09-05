@@ -59,6 +59,53 @@ export function analyzeSequencePattern(analyzeChatNum, patternSequence, datesDat
         const endItem = stream[i + patternLength - 1];
         const nextItem = i + patternLength < streamLength ? stream[i + patternLength] : null;
 
+        // Context before match (up to 2 items before match start)
+        const beforeContext = [];
+        for (let b = Math.max(0, i - 2); b < i; b++) {
+          beforeContext.push({
+            date: stream[b].date,
+            formattedDate: stream[b].formattedDate,
+            rowIndex: stream[b].rowIndex,
+            code: stream[b].code,
+            type: "before"
+          });
+        }
+
+        // Matched input pattern items
+        const matchedContext = [];
+        for (let m = i; m < i + patternLength; m++) {
+          matchedContext.push({
+            date: stream[m].date,
+            formattedDate: stream[m].formattedDate,
+            rowIndex: stream[m].rowIndex,
+            code: stream[m].code,
+            type: "matched"
+          });
+        }
+
+        // Context after match (predicted next item + 1 optional context item after)
+        const afterContext = [];
+        if (nextItem) {
+          afterContext.push({
+            date: nextItem.date,
+            formattedDate: nextItem.formattedDate,
+            rowIndex: nextItem.rowIndex,
+            code: nextItem.code,
+            type: "predicted"
+          });
+
+          if (i + patternLength + 1 < streamLength) {
+            const nextNextItem = stream[i + patternLength + 1];
+            afterContext.push({
+              date: nextNextItem.date,
+              formattedDate: nextNextItem.formattedDate,
+              rowIndex: nextNextItem.rowIndex,
+              code: nextNextItem.code,
+              type: "after"
+            });
+          }
+        }
+
         matches.push({
           id: `${startItem.date}-${chatNum}-${startItem.rowIndex}-${i}`,
           date: startItem.date,
@@ -69,6 +116,10 @@ export function analyzeSequencePattern(analyzeChatNum, patternSequence, datesDat
           sameDate: startItem.date === endItem.date,
           endDate: endItem.date,
           endFormattedDate: endItem.formattedDate,
+          beforeContext,
+          matchedContext,
+          afterContext,
+          fullContext: [...beforeContext, ...matchedContext, ...afterContext],
           historicalNext: nextItem ? nextItem.code : null,
           nextDate: nextItem ? nextItem.formattedDate : null,
           nextRow: nextItem ? nextItem.rowIndex : null,
