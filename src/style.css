@@ -33,20 +33,32 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.6);
+
+  /* NOTEPAD THEMING VARIABLES (DARK NOTEBOOK) */
+  --notepad-bg: #141a21;
+  --notepad-line: rgba(70, 90, 105, 0.35);
+  --notepad-margin-red: rgba(239, 83, 80, 0.65);
+  --notepad-binder-header: linear-gradient(135deg, #1e293b, #0f172a);
+  --notepad-card-bg: #1e293b;
+  --notepad-card-border: rgba(148, 163, 184, 0.2);
+  --notepad-text: #f8fafc;
+  --notepad-text-muted: #94a3b8;
+  --notepad-sticky-bg: rgba(245, 158, 11, 0.12);
+  --notepad-sticky-border: rgba(245, 158, 11, 0.4);
 }
 
 :root[data-theme="light"] {
-  --bg-primary: #efeae2;
+  --bg-primary: #f7f4eb;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f0f2f5;
-  --bg-glass: rgba(240, 242, 245, 0.95);
+  --bg-tertiary: #f0ede4;
+  --bg-glass: rgba(247, 244, 235, 0.95);
   
-  --text-primary: #111b21;
-  --text-secondary: #54656f;
-  --text-muted: #8696a0;
+  --text-primary: #2c251e;
+  --text-secondary: #6e6458;
+  --text-muted: #968c7e;
   
-  --border-color: #e9edef;
-  --border-hover: #d1d7db;
+  --border-color: #e6dfd1;
+  --border-hover: #d6ccbc;
   
   --accent-emerald: #008069;
   --accent-emerald-hover: #006a57;
@@ -55,20 +67,32 @@
   --accent-cyan: #0284c7;
   --accent-rose: #ea868f;
   
-  --bubble-user-bg: #d9fdd3;
-  --bubble-user-border: #b5f5a8;
-  --bubble-user-text: #111b21;
+  --bubble-user-bg: #ffffff;
+  --bubble-user-border: #e6dfd1;
+  --bubble-user-text: #2c251e;
   
-  --bubble-analyze-bg: #d9fdd3;
-  --bubble-analyze-border: #b5f5a8;
-  --bubble-analyze-text: #111b21;
+  --bubble-analyze-bg: #ffffff;
+  --bubble-analyze-border: #e6dfd1;
+  --bubble-analyze-text: #2c251e;
   
-  --header-bg: #008069;
+  --header-bg: #d97706;
   --header-text: #ffffff;
   
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.1);
+
+  /* NOTEPAD THEMING VARIABLES (LIGHT NOTEBOOK) */
+  --notepad-bg: #f9f6ef;
+  --notepad-line: rgba(180, 165, 140, 0.32);
+  --notepad-margin-red: rgba(225, 80, 70, 0.7);
+  --notepad-binder-header: linear-gradient(135deg, #d97706, #b45309);
+  --notepad-card-bg: #ffffff;
+  --notepad-card-border: #e2d9c8;
+  --notepad-text: #2c251e;
+  --notepad-text-muted: #786d5f;
+  --notepad-sticky-bg: #fffbeb;
+  --notepad-sticky-border: #fcd34d;
 }
 
 /* RESET & BASE */
@@ -478,38 +502,55 @@ html, body {
   100% { transform: translateX(0); }
 }
 
-/* SINGLE ROW GUIDANCE CARD */
+/* SINGLE ROW GUIDANCE CARD (NOTEPAD REMINDER STRIP) */
 .single-row-guidance-card {
-  background: rgba(2, 132, 199, 0.15);
-  border: 1px solid var(--accent-cyan);
-  color: var(--text-primary);
+  background: var(--notepad-sticky-bg);
+  border: 1px dashed var(--notepad-sticky-border);
+  color: var(--notepad-text);
   padding: 10px 14px;
-  border-radius: 14px;
+  border-radius: 10px;
   font-size: 0.78rem;
   font-weight: 500;
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 12px 16px 4px 16px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .guidance-icon {
   font-size: 1rem;
 }
 
-/* INSTANT LIVE PREDICTION BANNER STYLES */
+/* INSTANT LIVE PREDICTION BANNER (NOTEPAD STICKY NOTE DESIGN) */
 .instant-prediction-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--accent-emerald);
-  border-radius: 16px;
+  background: var(--notepad-sticky-bg);
+  border: 1.5px solid var(--notepad-sticky-border);
+  border-radius: 12px;
   padding: 12px 16px;
   margin: 12px 16px 4px 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  box-shadow: 0 4px 14px rgba(0, 168, 132, 0.18);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  position: relative;
+  transform: rotate(-0.5deg);
   animation: fadeIn 0.2s ease;
+}
+
+.instant-prediction-card::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
 }
 
 .instant-prediction-header {
@@ -912,68 +953,109 @@ html, body {
 }
 
 .chat-room-topbar {
-  padding: 10px 16px;
-  background: var(--bg-tertiary);
-  border-bottom: 1px solid var(--border-color);
+  padding: 12px 16px;
+  background: var(--notepad-binder-header);
+  color: #ffffff;
+  border-bottom: 2px solid var(--notepad-card-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .chat-room-topbar-info h3 {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .chat-room-topbar-info span {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .chat-messages-scroll {
   flex: 1;
-  padding: 16px;
+  padding: 16px 14px 16px 46px; /* Left padding for red vertical notebook margin line */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background-color: var(--notepad-bg);
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 37px,
+    var(--notepad-line) 37px,
+    var(--notepad-line) 38px
+  );
+  position: relative;
 }
 
-/* CHAT BUBBLES (WHATSAPP STYLE) */
+/* RED VERTICAL MARGIN LINE (CLASSIC LEGAL NOTEBOOK PAD RULE) */
+.chat-messages-scroll::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 36px;
+  width: 2px;
+  background: var(--notepad-margin-red);
+  box-shadow: 2px 0 0 rgba(225, 80, 70, 0.2);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* CHAT BUBBLES TRANSFORMED TO NOTEPAD LINED ENTRIES */
 .chat-bubble-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 12px;
+  background: var(--notepad-card-bg);
+  border: 1px solid var(--notepad-card-border);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chat-bubble-wrapper:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.09);
 }
 
 .analyze-bubble-wrapper {
-  align-items: flex-start;
+  align-items: center;
 }
 
 .chat-row-tag {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: var(--text-muted);
+  font-family: 'Courier New', Courier, monospace, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--notepad-margin-red);
+  min-width: 68px;
+  letter-spacing: 0.5px;
 }
 
 .chat-bubble,
 .analyze-bubble {
-  background: var(--bubble-user-bg);
-  border: 1px solid var(--bubble-user-border);
-  color: var(--bubble-user-text);
-  padding: 8px 12px;
-  border-radius: 12px 12px 2px 12px;
-  box-shadow: var(--shadow-sm);
+  flex: 1;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-width: 82%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100%;
   animation: popIn 0.15s ease-out;
 }
 
 .analyze-bubble {
-  border-radius: 12px 12px 12px 2px;
+  border-radius: 0;
 }
 
 @keyframes popIn {
@@ -988,28 +1070,30 @@ html, body {
 
 .digit-pill,
 .analyze-pill {
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Roboto', 'Courier New', monospace;
   font-size: 1.15rem;
   font-weight: 700;
-  width: 32px;
-  height: 34px;
-  background: rgba(0, 0, 0, 0.15);
-  color: inherit;
-  border-radius: 8px;
+  width: 34px;
+  height: 36px;
+  background: var(--notepad-bg);
+  color: var(--notepad-text);
+  border: 1px solid var(--notepad-card-border);
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .chat-bubble-meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
-  border-top: 1px solid rgba(0,0,0,0.08);
-  padding-top: 4px;
-  font-size: 0.72rem;
-  opacity: 0.85;
+  border-top: none;
+  padding-top: 0;
+  font-size: 0.75rem;
+  color: var(--notepad-text-muted);
 }
 
 .chat-bubble-actions {
@@ -1276,16 +1360,17 @@ html, body {
   gap: 8px;
 }
 
-/* STICKY INPUT BAR (WHATSAPP STYLE) */
+/* STICKY INPUT BAR (NOTEPAD WRITING STRIP) */
 .chat-input-bar {
   position: sticky;
   bottom: 0;
   padding: 10px 14px;
-  background: var(--bg-tertiary);
-  border-top: 1px solid var(--border-color);
+  background: var(--notepad-card-bg);
+  border-top: 1px solid var(--notepad-card-border);
   display: flex;
   align-items: center;
   gap: 10px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .chat-input-wrapper {
@@ -1297,22 +1382,23 @@ html, body {
 
 .chat-text-input {
   width: 100%;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Roboto', 'Courier New', monospace;
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
   padding: 11px 16px;
   padding-right: 46px;
-  background: var(--bg-secondary);
-  border: none;
+  background: var(--notepad-bg);
+  border: 1px solid var(--notepad-card-border);
   border-radius: 24px;
-  color: var(--text-primary);
+  color: var(--notepad-text);
   outline: none;
-  box-shadow: var(--shadow-sm);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .chat-text-input:focus {
-  box-shadow: 0 0 0 2px var(--accent-emerald);
+  border-color: var(--accent-emerald);
+  box-shadow: 0 0 0 2px rgba(0, 168, 132, 0.25);
 }
 
 .digit-counter {
@@ -1504,22 +1590,45 @@ html, body {
   cursor: not-allowed;
 }
 
-/* RESULTS SCREEN */
+/* RESULTS SCREEN (NOTEPAD LINED PAPER THEME) */
 .results-container {
-  padding: 16px;
+  padding: 16px 14px 16px 46px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  background-color: var(--notepad-bg);
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 37px,
+    var(--notepad-line) 37px,
+    var(--notepad-line) 38px
+  );
+  position: relative;
+  min-height: calc(100vh - 61px);
+}
+
+.results-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 36px;
+  width: 2px;
+  background: var(--notepad-margin-red);
+  box-shadow: 2px 0 0 rgba(225, 80, 70, 0.2);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .results-header-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
+  background: var(--notepad-card-bg);
+  border: 1px solid var(--notepad-card-border);
+  border-radius: 16px;
   padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .results-tag {
@@ -1602,15 +1711,16 @@ html, body {
   font-weight: 500;
 }
 
-/* CANDIDATES CARD */
+/* CANDIDATES CARD (NOTEPAD INDEX SHEET) */
 .candidates-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
+  background: var(--notepad-card-bg);
+  border: 1px solid var(--notepad-card-border);
+  border-radius: 16px;
   padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .card-subtitle {
@@ -1625,9 +1735,9 @@ html, body {
 }
 
 .candidate-item {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
+  background: var(--notepad-bg);
+  border: 1px solid var(--notepad-card-border);
+  border-radius: 12px;
   padding: 12px 14px;
   display: flex;
   align-items: center;
@@ -1636,7 +1746,7 @@ html, body {
 
 .top-candidate {
   border-color: var(--accent-emerald);
-  background: rgba(0, 168, 132, 0.1);
+  background: rgba(0, 168, 132, 0.08);
 }
 
 .candidate-left {
@@ -1677,7 +1787,7 @@ html, body {
   border-radius: 20px;
 }
 
-/* MATCH LOCATIONS */
+/* MATCH LOCATIONS (NOTEPAD MATCH CARDS) */
 .match-locations-section {
   display: flex;
   flex-direction: column;
@@ -1691,13 +1801,14 @@ html, body {
 }
 
 .match-detail-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: var(--notepad-card-bg);
+  border: 1px solid var(--notepad-card-border);
   border-radius: 16px;
   padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .match-card-header {
